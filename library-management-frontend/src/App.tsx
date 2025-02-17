@@ -1,9 +1,17 @@
 import React from 'react';
-import { Button } from "./components/components/ui/button";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import ProtectedRoute from './components/custom/protected-route/ProtectedRoute';
 
 function App() {
   return (
-    <Button className='my-4 ml-4'>Click me</Button>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<h1>Click me</h1>} />
+          <Route  element={<ProtectedRoute />}>
+            <Route path=":id" element={<h1>Detail</h1>} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
   );
 }
 
