@@ -4,8 +4,7 @@
     "jsx": "react",
     "baseUrl": ".",
     "paths": {
-      "@/components/*": ["src/components/*"],
-      "@/lib/*": ["src/components/lib/*"]
+      "@/*": ["src/*"]
     }
   }
 }
