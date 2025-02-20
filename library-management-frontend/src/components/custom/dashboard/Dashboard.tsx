@@ -2,9 +2,9 @@ import React, { useState } from "react";
 
 const Dashboard = () => {
     const [books, setBooks] = useState([
-        { id: 1, name: "Book One", author: "Author A", publisher: "Publisher A", isbn: "12345" },
-        { id: 2, name: "Book Two", author: "Author B", publisher: "Publisher B", isbn: "67890" },
-        { id: 3, name: "Book Three", author: "Author C", publisher: "Publisher C", isbn: "11223" },
+        // { id: 1, name: "Book One", author: "Author A", publisher: "Publisher A", isbn: "12345" },
+        // { id: 2, name: "Book Two", author: "Author B", publisher: "Publisher B", isbn: "67890" },
+        // { id: 3, name: "Book Three", author: "Author C", publisher: "Publisher C", isbn: "11223" },
     ]);
     const [searchTerm, setSearchTerm] = useState("");
     const [editBookId, setEditBookId] = useState(null);
@@ -69,11 +69,6 @@ const Dashboard = () => {
                     onChange={handleSearch}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
-                <button
-                    className="ml-4 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600"
-                >
-                    Add Book
-                </button>
             </div>
 
             {/* Book List */}
