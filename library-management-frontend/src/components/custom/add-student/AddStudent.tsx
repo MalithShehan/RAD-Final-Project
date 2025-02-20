@@ -153,7 +153,7 @@ const AddStudent = () => {
                 <div className="mt-6 text-center">
                     <button
                         type="submit"
-                        className="px-6 py-2 bg-yellow-600 text-white font-semibold rounded-lg shadow-md hover:bg-primary"
+                        className="px-6 py-2 bg-yellow-600 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-500"
                     >
                         Add Student
                     </button>
