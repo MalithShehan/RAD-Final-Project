@@ -1,19 +1,17 @@
+import { icons } from "lucide-react";
+
 export const menuItems = [
     {
         title: 'Dashboard',
         path: '/dashboard',  
     },
     {   
-        title: 'Add Book',
+        title: 'Book',
         path: '/addBook',  
     },
     {
-        title: 'Student List',
-        path: '/studentList',  
-    },
-    {
-        title: 'Add Student',
-        path: '/addStudent',  
+        title: 'Student',
+        path: '/student',  
     },
     {
         title: 'Isse Book',
