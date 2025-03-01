@@ -1,44 +1,31 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import authRoutes, { authenticateToken } from "./routes/auth-routes";
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors'
+import customerRoutes from "./routes/customer-routes";
+import itemRoutes from "./routes/item-routes";
+import orderRoutes from "./routes/order-routes";
+import authRoutes, {authenticateToken} from "./routes/auth-routes";
 
-// Load environment variables
-dotenv.config();
 
 const app = express();
+dotenv.config()
 
-// Middleware
-app.use(express.json());
+app.use(express.json())
 
-// CORS Configuration
-app.use(
-    cors({
-        origin: "http://localhost:5175", // Update with your frontend's URL
-        methods: ["GET", "POST"],
-        credentials: true,
-    })
-);
+app.use(cors({
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}))
+app.use('/auth',authRoutes)
+app.use(authenticateToken)
 
-// Logging the secret key for debugging purposes
-console.log("Loaded SECRET_KEY:", process.env.SECRET_KEY);
+app.use('/customer',customerRoutes)
 
-// Authentication Routes
-app.use("/auth", authRoutes);
+app.use('/item',itemRoutes)
 
-// Token Authentication Middleware (for secured routes)
-app.use(authenticateToken);
+app.use('/orders',orderRoutes)
 
-// Sample Secured Route
-app.get("/customers", async (req: express.Request, res: express.Response) => {
-    const customer = { id: "1", name: "Ramindu" };
-    const username = req.body.username;
-    console.log("Request Username:", username);
-    res.json(customer);
-});
-
-// Start the server
-const PORT = process.env.PORT || 3003;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+app.listen(3000, () => {
+    console.log('Server started on port 3000!');
+})
