@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id      String @id
+  name    String
+  address String
+  phone   String
+}
+
+model Item {
+  itemCode     String         @id
+  desc         String
+  author       String
+  qto          Int
+  price        Float
+  orderDetails OrderDetails[]
+}
+
+model Orders {
+  orderId      String         @id
+  customerId   String
+  date         String
+  customerName String
+  total        Float
+  discount     String
+  subtotal     Float
+  orderDetails OrderDetails[]
+}
+
+model OrderDetails {
+  orderId  String
+  itemCode String
+  orders   Orders @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
+  Item     Item   @relation(fields: [itemCode], references: [itemCode])
+
+  @@id([itemCode, orderId])
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+}
