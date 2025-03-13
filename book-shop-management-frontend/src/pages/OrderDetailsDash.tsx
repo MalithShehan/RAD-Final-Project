@@ -258,7 +258,7 @@ export function OrderDetailsDash() {
                     </thead>
                     <tbody id="order-item-tbody">
                     {cartItems.map((item: CartItem) => (
-                        <tr key={item.itemCode} className="border border-gray-200"
+                        <tr key={item.itemCode} className="hover:bg-sky-100 cursor-pointer transition-all duration-200"
                             onClick={() => handleItemModify(item)}>
                             <td>{item.itemCode}</td>
                             <td>{item.desc}</td>

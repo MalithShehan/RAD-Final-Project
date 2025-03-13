@@ -1,3 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Global CSS or in a styles module file */
+
+@keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes scaleUp {
+    0% {
+      transform: scale(0.9);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  .fixed {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .bg-white {
+    animation: scaleUp 0.3s ease-out;
+  }

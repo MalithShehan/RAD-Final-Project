@@ -1,3 +1,8 @@
-.custom-link{
-    @apply px-3 py-2 rounded ms-5  text-white font-thin hover:underline;
+.custom-link {
+    @apply px-3 py-2 rounded ms-5 text-black font-bold hover:underline relative;
+
+    /* Adding the bold font */
+    font-weight: bold;
 }
+
+

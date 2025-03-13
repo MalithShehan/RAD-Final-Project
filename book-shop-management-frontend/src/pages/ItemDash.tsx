@@ -65,7 +65,8 @@ export function ItemDash(){
         <tbody>
         {
             filteredItems.map((item:Item) => (
-                <tr key={item.itemCode} onClick={() => showUpdateItem(item)}>
+                <tr key={item.itemCode} onClick={() => showUpdateItem(item)}
+                    className="hover:bg-sky-100 cursor-pointer transition-all duration-200">
                     <td>{item.desc}</td>
                     <td>{item.author}</td>
                     <td>{item.qto}</td>
