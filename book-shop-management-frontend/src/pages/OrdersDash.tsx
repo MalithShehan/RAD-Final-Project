@@ -1,4 +1,3 @@
-
 import {useEffect, useState} from "react";
 import SearchOrder from "../components/SearchOrder.tsx";
 import {useDispatch, useSelector} from "react-redux";
@@ -33,39 +32,54 @@ export function OrdersDash(){
         );
     });
     return (
-        <>
-            <div className="flex flex-col items-center">
-                <h1 className="p-5 text-4xl font-light mb-2 text-gray-900">Orders</h1>
+        <div className="p-8 bg-gray-50 min-h-screen"
+             style={{ background: 'linear-gradient(to right, #ccff66, #ffff66)' }}
+        >
+            {/* Header Section */}
+            <div className="flex flex-col items-center mb-6">
+                <h1 className="text-4xl font-bold text-gray-800">Orders Dashboard</h1>
+                <p className="text-gray-600 mt-2">Manage and review all orders in one place</p>
             </div>
-            <div>
-                <SearchOrder handleSearch={handleSearch} setSearchTerm={setSearchTerm}>Search</SearchOrder>
+
+            {/* Search and Actions Section */}
+            <div className="flex justify-between items-center mb-6">
+                <SearchOrder
+                    handleSearch={handleSearch}
+                    setSearchTerm={setSearchTerm}
+                />
             </div>
-            <table className="table-auto border-2 border-sky-400 w-full">
-                <thead className="bg-sky-200">
-                <tr>
-                    <td>OrderId</td>
-                    <td>CustomerName</td>
-                    <td>Date</td>
-                    <td>Total</td>
-                    <td>Discount</td>
-                    <td>Subtotal</td>
-                </tr>
-                </thead>
-                <tbody>
-                {
-                    filteredOrders.map((order: Order) => (
-                        <tr key={order.orderId} onClick={() => handleOrder(order)}>
-                            <td>{order.orderId}</td>
-                            <td>{order.customerName}</td>
-                            <td>{order.date}</td>
-                            <td>{order.total}</td>
-                            <td>{order.discount}</td>
-                            <td>{order.subtotal}</td>
+
+            {/* Table Section */}
+            <div className="bg-transparent shadow-md rounded-lg overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-sky-200">
+                    <tr>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Order ID</th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Customer Name</th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Total</th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Discount</th>
+                        <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Subtotal</th>
+                    </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredOrders.map((order: Order) => (
+                        <tr
+                            key={order.orderId}
+                            className="hover:bg-sky-100 cursor-pointer transition-all duration-200"
+                            onClick={() => handleOrder(order)}
+                        >
+                            <td className="px-6 py-4 text-sm text-gray-700">{order.orderId}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{order.customerName}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{order.date}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{order.total}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{order.discount}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{order.subtotal}</td>
                         </tr>
-                    ))
-                }
-                </tbody>
-            </table>
-        </>
-    )
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
 }

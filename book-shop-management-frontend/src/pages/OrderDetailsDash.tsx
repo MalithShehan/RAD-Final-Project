@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import SearchOrder from "../components/SearchOrder.tsx";
-import {useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Item } from "../models/Item.ts";
 import AddToCart from "../components/AddToCart.tsx";
 import { CartItem } from "../models/CartItem.ts";
 import UpdateCart from "../components/UpdateCart.tsx";
 import { v4 } from "uuid";
-import {Order} from "../models/Order.ts";
-import {Customer} from "../models/Customer.ts";
-import {useNavigate} from "react-router";
-import {Appdispatch} from "../store/store.tsx";
-import {addOrder} from "../reducer/OrderSlice.ts";
-import {clearCart} from "../reducer/OrderDetailSlice.ts";
+import { Order } from "../models/Order.ts";
+import { Customer } from "../models/Customer.ts";
+import { useNavigate } from "react-router";
+import { Appdispatch } from "../store/store.tsx";
+import { addOrder } from "../reducer/OrderSlice.ts";
+import { clearCart } from "../reducer/OrderDetailSlice.ts";
 
 export function OrderDetailsDash() {
     const items = useSelector(state => state.item.items);
     const cartItems = useSelector(state => state.cart.cartItems);
-    const customerList = useSelector(state => state.customer.customers)
+    const customerList = useSelector(state => state.customer.customers);
     const dispatch = useDispatch<Appdispatch>();
     const navigate = useNavigate();
 
@@ -44,7 +44,6 @@ export function OrderDetailsDash() {
     }, []);
 
     useEffect(() => {
-        // Update subtotal and balance whenever total, discount, or cash changes
         const discountAmount = (total * (discount / 100));
         const calculatedSubTotal = total - discountAmount;
         setSubTotal(calculatedSubTotal);
@@ -52,14 +51,13 @@ export function OrderDetailsDash() {
     }, [total, discount, cash]);
 
     const handleBuy = async () => {
-        if (!orderDate||!cash||!customerName){
-            console.log(orderDate)
+        if (!orderDate || !cash || !customerName) {
             alert("Please fill out all the necessary details");
             return;
         }
-        else if(order){
+        if (order) {
             order.orderId = orderId;
-            order.date = orderDate
+            order.date = orderDate;
             order.customerName = customerName;
             order.customerId = customerId;
             order.total = total;
@@ -68,20 +66,18 @@ export function OrderDetailsDash() {
         }
         await dispatch(addOrder(order));
         navigate('/home/orders');
-
     };
 
     function handleFinish() {
+        order.cartItems = cartItems;
+        let cartTotal = 0;
 
-            order.cartItems = cartItems;
-            let cartTotal = 0
+        cartItems.forEach((item: CartItem) => {
+            cartTotal += item.subTotal;
+        });
 
-            cartItems.forEach((item: CartItem) => {
-                cartTotal += item.subTotal
-            })
-
-            setTotal(cartTotal);
-            dispatch(clearCart())
+        setTotal(cartTotal);
+        dispatch(clearCart());
     }
 
     function handleSearch() {
@@ -99,6 +95,7 @@ export function OrderDetailsDash() {
         setClickedItem(item);
         setIsUpdateOpen(true);
     }
+
     function handleCustomerSelect(customer: Customer) {
         setCustomerId(customer.id);
         setCustomerName(customer.name);
@@ -106,50 +103,55 @@ export function OrderDetailsDash() {
     }
 
     return (
-        <div className="flex flex-col md:flex-row">
-            <div className="top-1.5 right-3 w-full md:w-1/4 border-2 border-black p-3 bg-white">
-                <h1 className="text-2xl font-bold mb-6 text-center">New Order</h1>
+        <div className="flex flex-col md:flex-row p-6 space-y-6 md:space-y-0 md:space-x-6 bg-gradient-to-r from-yellow-200 via-green-200 to-yellow-100">
+            {/* Left Section: Order Form */}
+            <div className="w-full md:w-1/3 bg-white p-6 rounded-xl shadow-lg">
+                <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">New Order</h1>
                 <form className="space-y-4">
+                    {/* Order ID */}
                     <div>
-                        <label htmlFor="orderId" className="block text-sm font-medium mb-1">Order ID</label>
+                        <label htmlFor="orderId" className="block text-sm font-medium text-gray-700">Order ID</label>
                         <input
                             type="text"
                             id="orderId"
-                            className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500"
                             value={orderId}
                             readOnly
                         />
                     </div>
 
+                    {/* Customer ID */}
                     <div>
-                        <label htmlFor="order-cust-id" className="block text-sm font-medium mb-1">Customer ID</label>
+                        <label htmlFor="order-cust-id" className="block text-sm font-medium text-gray-700">Customer ID</label>
                         <input
                             type="text"
                             id="order-cust-id"
-                            className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500"
                             value={customerId}
                             onChange={(e) => setCustomerId(e.target.value)}
                             readOnly
                         />
                     </div>
 
+                    {/* Order Date */}
                     <div>
-                        <label htmlFor="order-date" className="block text-sm font-medium mb-1">Date</label>
+                        <label htmlFor="order-date" className="block text-sm font-medium text-gray-700">Date</label>
                         <input
                             type="date"
                             id="order-date"
-                            className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500"
                             value={orderDate}
                             onChange={(e) => setOrderDate(e.target.value)}
                             required
                         />
                     </div>
 
+                    {/* Customer Name */}
                     <div>
-                        <label htmlFor="order-item-desc" className="form-label">Customer Name</label>
+                        <label htmlFor="order-item-desc" className="block text-sm font-medium text-gray-700">Customer Name</label>
                         <input
                             type="text"
-                            className="form-control border rounded p-2 w-full"
+                            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500"
                             id="order-item-desc"
                             value={customerName}
                             onChange={(e) => {
@@ -160,8 +162,8 @@ export function OrderDetailsDash() {
                         />
                         {/* Suggestions List */}
                         {showSuggestions && customerList.length > 0 && (
-                            <ul id="item-id-suggestions" className="mt-2 border border-gray-300 rounded">
-                                {customerList.map((item:Customer) => (
+                            <ul id="item-id-suggestions" className="mt-2 border border-gray-300 rounded shadow-md">
+                                {customerList.map((item: Customer) => (
                                     <li
                                         key={item.id}
                                         className="border-b p-2 cursor-pointer hover:bg-gray-200"
@@ -174,59 +176,63 @@ export function OrderDetailsDash() {
                         )}
                     </div>
 
+                    {/* Total */}
                     <div>
-                        <label htmlFor="order-total" className="block text-sm font-medium mb-1">Total</label>
+                        <label htmlFor="order-total" className="block text-sm font-medium text-gray-700">Total</label>
                         <input
                             type="number"
                             id="order-total"
-                            className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500"
                             value={total}
                             onChange={(e) => setTotal(Number(e.target.value))}
-                            required
                             readOnly
                         />
                     </div>
 
+                    {/* Discount */}
                     <div>
-                        <label htmlFor="order-discount" className="block text-sm font-medium mb-1">Discount %</label>
+                        <label htmlFor="order-discount" className="block text-sm font-medium text-gray-700">Discount %</label>
                         <input
                             type="number"
                             id="order-discount"
-                            className="block w-full border-gray-300 rounded-md bg-gray-100 shadow-sm"
+                            className="w-full border-gray-300 rounded-md bg-gray-100 shadow-sm"
                             value={discount}
                             onChange={(e) => setDiscount(Number(e.target.value))}
                         />
                     </div>
 
+                    {/* Subtotal */}
                     <div>
-                        <label htmlFor="order-full-total" className="block text-sm font-medium mb-1">Sub Total</label>
+                        <label htmlFor="order-full-total" className="block text-sm font-medium text-gray-700">Sub Total</label>
                         <input
                             type="number"
                             id="order-full-total"
-                            className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500"
                             value={subTotal}
                             readOnly
                         />
                     </div>
 
+                    {/* Cash */}
                     <div>
-                        <label htmlFor="customer-c ash" className="block text-sm font-medium mb-1">Cash</label>
+                        <label htmlFor="customer-cash" className="block text-sm font-medium text-gray-700">Cash</label>
                         <input
                             type="number"
                             id="customer-cash"
-                            className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500"
                             value={cash}
                             onChange={(e) => setCash(Number(e.target.value))}
                             required
                         />
                     </div>
 
+                    {/* Balance */}
                     <div>
-                        <label htmlFor="customer-bal" className="block text-sm font-medium mb-1">Balance</label>
+                        <label htmlFor="customer-bal" className="block text-sm font-medium text-gray-700">Balance</label>
                         <input
                             type="number"
                             id="customer-bal"
-                            className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500"
                             value={balance}
                             readOnly
                         />
@@ -234,7 +240,7 @@ export function OrderDetailsDash() {
 
                     <button
                         type="button"
-                        className="w-full bg-indigo-500 text-white py-2 rounded-md hover:bg-indigo-600 focus:outline-none"
+                        className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 focus:outline-none"
                         onClick={handleBuy}
                     >
                         Buy
@@ -242,11 +248,12 @@ export function OrderDetailsDash() {
                 </form>
             </div>
 
-            <div className="w-full md:w-3/4 ml-0 md:ml-[4.5%] p-10">
-                <SearchOrder setSearchTerm={setSearchTerm} handleSearch={handleSearch}>Add Item</SearchOrder>
+            {/* Right Section: Items List */}
+            <div className="w-full md:w-2/3 bg-white p-6 rounded-xl shadow-lg">
+                <SearchOrder setSearchTerm={setSearchTerm} handleSearch={handleSearch} />
+                <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">Item List</h1>
 
-                <h1 className="text-2xl font-bold text-center mb-8">Item List</h1>
-                <table className="w-full border-collapse border border-gray-200">
+                <table className="w-full border-collapse border border-gray-300">
                     <thead className="bg-gray-100">
                     <tr>
                         <th className="border border-gray-300 px-4 py-2">#Item Code</th>
@@ -256,10 +263,9 @@ export function OrderDetailsDash() {
                         <th className="border border-gray-300 px-4 py-2">Total Price</th>
                     </tr>
                     </thead>
-                    <tbody id="order-item-tbody">
+                    <tbody>
                     {cartItems.map((item: CartItem) => (
-                        <tr key={item.itemCode} className="hover:bg-sky-100 cursor-pointer transition-all duration-200"
-                            onClick={() => handleItemModify(item)}>
+                        <tr key={item.itemCode} className="hover:bg-gray-100 cursor-pointer" onClick={() => handleItemModify(item)}>
                             <td>{item.itemCode}</td>
                             <td>{item.desc}</td>
                             <td>{item.unitPrice}</td>
@@ -269,10 +275,11 @@ export function OrderDetailsDash() {
                     ))}
                     </tbody>
                 </table>
-                <div className="flex justify-end mt-6">
+
+                <div className="flex justify-end mt-6 space-x-4">
                     <button
                         type="button"
-                        className="bg-indigo-500 text-white px-6 py-2 rounded-md hover:bg-indigo-600"
+                        className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700"
                         onClick={handleFinish}
                     >
                         Finished
