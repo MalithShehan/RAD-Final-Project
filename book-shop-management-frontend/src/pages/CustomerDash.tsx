@@ -48,26 +48,30 @@ export function CustomerDash() {
     return (
         <>
             <div className="flex flex-col items-center">
-                <h1 className="p-4 text-4xl font-light mb-6 text-gray-900">Customers</h1>
+                <h1 className="p-4 text-4xl font-light mb-6 text-blue-50">Customers</h1>
             </div>
             <div>
                 <SearchBar handleSearch={handleSearch} setSearchTerm={setSearchTerm} handleModal1={showAddCustomer}/>
             </div>
-            <table className="table-auto border-2 border-sky-400 w-full">
+            <table className="table-auto border-2 border-sky-400 w-full rounded-lg overflow-hidden">
                 <thead className="bg-sky-200">
                 <tr>
-                    <td>Name</td>
-                    <td>Address</td>
-                    <td>Phone</td>
+                    <th className="py-2 px-4 text-left">Name</th>
+                    <th className="py-2 px-4 text-left">Address</th>
+                    <th className="py-2 px-4 text-left">Phone</th>
                 </tr>
                 </thead>
                 <tbody>
                 {
-                    filteredCustomers.map((customer:Customer) => (
-                        <tr key={customer.id} onClick={() => showUpdateCustomer(customer)}>
-                            <td>{customer.name}</td>
-                            <td>{customer.address}</td>
-                            <td>{customer.phone}</td>
+                    filteredCustomers.map((customer: Customer) => (
+                        <tr
+                            key={customer.id}
+                            onClick={() => showUpdateCustomer(customer)}
+                            className="hover:bg-sky-100 cursor-pointer transition-all duration-200"
+                        >
+                            <td className="py-2 px-4">{customer.name}</td>
+                            <td className="py-2 px-4">{customer.address}</td>
+                            <td className="py-2 px-4">{customer.phone}</td>
                         </tr>
                     ))
                 }
