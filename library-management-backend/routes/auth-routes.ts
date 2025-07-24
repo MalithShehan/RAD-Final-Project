@@ -63,7 +63,7 @@ router.post("/refresh-token", async (req, res) => {
 export function authenticateToken(req : express.Request, res : express.Response, next : express.NextFunction){
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(' ')[1];
-
+    
     console.log("TOKEN "+token);
     if(!token)res.status(401).send('No token provided');
     try{
