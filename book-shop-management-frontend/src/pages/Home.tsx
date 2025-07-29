@@ -57,7 +57,7 @@ export function Home() {
                         Hello Malith!
                     </h2>
                     <p className="mb-6 text-lg font-semibold">
-                        {user?.name || "Guest"}
+                        {user?.username || "Guest"}
                     </p>
                 </div>
                 <button
