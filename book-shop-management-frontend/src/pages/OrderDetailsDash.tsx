@@ -103,7 +103,7 @@ export function OrderDetailsDash() {
   return (
     <div className="flex flex-col md:flex-row p-6 space-y-6 md:space-y-0 md:space-x-6 bg-gradient-to-r from-green-100 via-yellow-100 to-lime-200 min-h-screen">
       {/* Left Section: Order Form */}
-      <div className="w-full md:w-1/3 bg-white p-6 rounded-2xl shadow-2xl border border-green-200">
+      <div className="w-full md:w-1/3 bg-transparent p-6 rounded-2xl shadow-2xl border border-green-200">
         <h1 className="text-3xl font-bold text-center text-green-800 mb-6"> New Order</h1>
         <form className="space-y-4 text-sm">
           <div>
@@ -182,8 +182,8 @@ export function OrderDetailsDash() {
       </div>
 
       {/* Right Section: Items List */}
-      <div className="w-full md:w-2/3 bg-white p-6 rounded-2xl shadow-2xl border border-yellow-200">
-        <SearchOrder setSearchTerm={setSearchTerm} handleSearch={handleSearch} />
+      <div className="w-full md:w-2/3 bg-transparent p-6 rounded-2xl shadow-2xl border border-yellow-200">
+        <SearchOrder setSearchTerm={setSearchTerm} handleSearch={handleSearch} >Item Add</SearchOrder>
         <h1 className="text-3xl font-bold text-center text-yellow-700 my-4">Cart Summary</h1>
 
         <div className="overflow-x-auto">
