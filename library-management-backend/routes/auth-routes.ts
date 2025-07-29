@@ -1,78 +1,102 @@
-import express from "express";
-import jwt, {Secret} from "jsonwebtoken";
-import {createUser, verifyUserCredentials} from "../database/data-store";
-import {User} from "../models/User";
-
+import express, {Request, Response, NextFunction} from "express";
+import jwt, { Secret } from "jsonwebtoken";
+import { createUser, verifyUserCredentials } from "../database/data-store";
+import { User } from "../models/User";
 
 const router = express.Router();
 
+// POST: Login
+
+// @ts-ignore
 router.post("/login", async (req, res) => {
-    console.log('Login')
-    const username = req.body.user.username;
-    const password = req.body.user.password;
+    const { username, password } = req.body.user;
+    const user: User = { username, password };
 
-    const user : User = {username, password};
+    try {
+        const isVerified = await verifyUserCredentials(user);
 
-    try{
-        const isVerified =  await verifyUserCredentials(user);
+        if (isVerified) {
+            const accessToken = jwt.sign(
+                { username },
+                process.env.SECRET_KEY as Secret,
+                { expiresIn: "15m" }
+            );
+            const refreshToken = jwt.sign(
+                { username },
+                process.env.REFRESH_TOKEN as Secret,
+                { expiresIn: "7d" }
+            );
 
-        if(isVerified){
-            const token = jwt.sign({ username }, process.env.SECRET_KEY as Secret, {expiresIn: "1m"});
-            const refreshToken = jwt.sign({ username }, process.env.REFRESH_TOKEN as Secret, {expiresIn: "7d"});
-            res.json({accessToken : token, refreshToken : refreshToken});
-        }else{
-            res.sendStatus(403).send('Invalid credentials')
+            return res.json({ accessToken, refreshToken });
+        } else {
+            return res.status(403).send("Invalid credentials");
         }
-    }catch(err){
-        console.log(err);
-        res.status(400).send(err);
+    } catch (err) {
+        console.error("Login error:", err);
+        return res.status(400).send("Error during login");
     }
+});
 
-})
+// POST: Register
+// @ts-ignore
 router.post("/register", async (req, res) => {
-    console.log('Register', req.body);
-    const username = req.body.user.username;
-    const password = req.body.user.password;
+    const { username, password } = req.body.user;
+    const user: User = { username, password };
 
-    const user : User = {username, password};
-
-    try{
+    try {
         const registration = await createUser(user);
-        res.status(201).json(registration);
-    }catch(err){
-        console.log(err);
-        res.status(401).json(err);
+        return res.status(201).json(registration);
+    } catch (err) {
+        console.error("Register error:", err);
+        return res.status(401).json({ error: "Registration failed" });
     }
+});
 
-})
+// POST: Refresh Token
+// @ts-ignore
 router.post("/refresh-token", async (req, res) => {
     const authHeader = req.headers.authorization;
-    const refresh_token = authHeader?.split(' ')[1];
+    const refreshToken = authHeader?.split(" ")[1];
 
-    if(!refresh_token)res.status(401).send('No token provided');
+    if (!refreshToken) return res.status(401).send("No token provided");
 
-    try{
-        const payload = jwt.verify(refresh_token as string, process.env.REFRESH_TOKEN as Secret) as {username: string, iat: number};
-        const token = jwt.sign({ username: payload.username }, process.env.SECRET_KEY as Secret, {expiresIn: "1m"});
-        res.json({accessToken : token});
-    }catch(err){
-        console.log(err);
-        res.status(401).json(err);
+    try {
+        const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN as Secret) as { username: string };
+        const newAccessToken = jwt.sign(
+            { username: payload.username },
+            process.env.SECRET_KEY as Secret,
+            { expiresIn: "15m" }
+        );
+
+        return res.json({ accessToken: newAccessToken });
+    } catch (err) {
+        console.error("Refresh token error:", err);
+        return res.status(401).json({ error: "Invalid refresh token" });
     }
-})
-export function authenticateToken(req : express.Request, res : express.Response, next : express.NextFunction){
+});
+
+// Middleware: Authenticate Access Token
+export function authenticateToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): void {
     const authHeader = req.headers.authorization;
-    const token = authHeader?.split(' ')[1];
-    
-    console.log("TOKEN "+token);
-    if(!token)res.status(401).send('No token provided');
-    try{
-        const payload = jwt.verify(token as string, process.env.SECRET_KEY as Secret) as {username: string, iat: number};
-        console.log("User Name "+payload.username);
+    const token = authHeader?.split(" ")[1];
+
+    if (!token) {
+        res.status(401).send("No token provided");
+        return;
+    }
+
+    try {
+        const payload = jwt.verify(token, process.env.SECRET_KEY as Secret) as { username: string };
         req.body.username = payload.username;
-        next();
-    }catch(err){
-        res.status(401).send("Something went Wrong !!!");
+        next(); // Always call next if successful
+    } catch (err) {
+        console.error("Token verification failed:", err);
+        res.status(401).send("Invalid or expired token");
     }
 }
+
 export default router;

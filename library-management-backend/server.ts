@@ -7,8 +7,10 @@ import orderRoutes from "./routes/order-routes";
 import authRoutes, {authenticateToken} from "./routes/auth-routes";
 
 
+
 const app = express();
 dotenv.config()
+
 
 app.use(express.json())
 
@@ -22,7 +24,7 @@ app.use(authenticateToken)
 
 app.use('/customer',customerRoutes)
 
-app.use('/item',itemRoutes)
+app.use('/item',authenticateToken, itemRoutes)
 
 app.use('/orders',orderRoutes)
 

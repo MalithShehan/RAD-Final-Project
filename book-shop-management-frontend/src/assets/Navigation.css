@@ -5,4 +5,7 @@
     font-weight: bold;
 }
 
-
+.custom-link {
+  text-decoration: none;
+  transition: color 0.3s ease;
+}

@@ -1,142 +1,128 @@
-import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {Item} from "../models/Item.ts";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { Item } from "../models/Item.ts";
 import axios from "axios";
 
-
-
+// Initial State
 const initialState = {
-    items: [{}],
-}
+  items: [] as Item[],
+};
+
+// Axios instance
 const api = axios.create({
-    baseURL: 'http://localhost:3000/item',
-})
-api.interceptors.request.use(config=>{
-        const token = sessionStorage.getItem("access-token");
-        if(token){
-            config.headers.Authorization ='Bearer '+token;
-        }
-        return config;
-    },
-    error => {
-        return Promise.reject(error);
-    }
-)
+  baseURL: "http://localhost:3000/item",
+});
 
-export const saveItem=createAsyncThunk(
-    'item/saveItem',
-    async (item:Item)=>{
-        try{
-            const response = await api.post('/add', item)
-            return response.data
-        }catch(error){
-            alert("Could not save item! Error: "+error)
-        }
+// Attach token from sessionStorage before each request
+api.interceptors.request.use(
+  (config) => {
+    const token = sessionStorage.getItem("access-token");
+    console.log("Attaching token:", token); // Debug log
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-)
-export const deleteItem =createAsyncThunk(
-    'item/deleteItem',
-    async (id:string)=>{
-        try {
-            const response = await api.delete(`/delete/${id}`)
-            return response.data
-        }catch (err){
-            alert("Could not delete item! Error: "+err)
-        }
-    }
-)
-export const getAllItem = createAsyncThunk(
-    'item/getAllItem',
-    async ()=>{
-        try {
-            const response = await api.get('/getAll')
-            return response.data
-        }catch (err){
-            alert("Could not get items! Error: "+err)
-        }
-    }
-)
-export const updateItem=createAsyncThunk(
-    'item/updateItem',
-    async (item:Item)=>{
-        try{
-            const response = await api.put(`/update/${item.itemCode}`,item);
-            return response.data
-        }catch (err){
-            alert("Could not update item! Error: "+err)
-        }
-    }
-)
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Thunks
+
+export const saveItem = createAsyncThunk<
+  Item,
+  Item,
+  { rejectValue: string }
+>("item/saveItem", async (item, thunkAPI) => {
+  try {
+    const response = await api.post("/add", item);
+    return response.data;
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Could not save item");
+  }
+});
+
+export const deleteItem = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string }
+>("item/deleteItem", async (id, thunkAPI) => {
+  try {
+    await api.delete(`/delete/${id}`);
+    return id;
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Could not delete item");
+  }
+});
+
+export const getAllItem = createAsyncThunk<
+  Item[],
+  void,
+  { rejectValue: string }
+>("item/getAllItem", async (_, thunkAPI) => {
+  try {
+    const response = await api.get("/getAll");
+    return response.data;
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Could not fetch items");
+  }
+});
+
+export const updateItem = createAsyncThunk<
+  Item,
+  Item,
+  { rejectValue: string }
+>("item/updateItem", async (item, thunkAPI) => {
+  try {
+    const response = await api.put(`/update/${item.itemCode}`, item);
+    return response.data;
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Could not update item");
+  }
+});
+
+// Slice
+
 const ItemSlice = createSlice({
-    name:"Item",
-    initialState:initialState,
-    reducers:{
-        /*
-        ==================================
-               REDUNDANT CODE BLOCK
-        ==================================
-        -> The following code block is redundant now because of createAsyncThunk methods
-        -> Uncomment in future if needed
+  name: "item",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // saveItem
+      .addCase(saveItem.fulfilled, (state, action) => {
+        state.items.push(action.payload);
+      })
+      .addCase(saveItem.rejected, (_, action) => {
+        alert(action.payload || "Save failed");
+      })
 
-        */
-        /*addItem:(state, {payload}) => {
-            state.items.push(payload);
-        },
-        deleteItem:(state, {payload}) => {
-            state.items = state.items.filter((item:Item) => item.itemCode !== payload.itemCode);
-        },
-        updateItem:(state,{payload}) => {
-            state.items = state.items.map((item:Item)=>(item.itemCode === payload.itemCode)?
-                {...item,
-                    itemCode:payload.itemCode,
-                    desc:payload.desc,
-                    author:payload.author,
-                    qto:payload.qto,
-                    price:payload.price}:item
-            );
-        }*/
-    },
-    extraReducers:(builder)=>{
-        builder
-            .addCase(saveItem.fulfilled,(state,action)=>{
-                state.items.push(action.payload)
-            })
-            .addCase(saveItem.pending,(state,action)=>{
-                console.error("Pending save item ....")
-            })
-            .addCase(saveItem.rejected,(state,action)=>{
-                console.error("Rejected save item")
-            })
-        builder
-            .addCase(deleteItem.fulfilled,(state,action)=>{
-                alert("Item deleted sccessfull!")
-            })
-            .addCase(deleteItem.pending,(state,action)=>{
-                console.error("Delete Item pending")
-            })
-            .addCase(deleteItem.rejected,(state,action)=>{
-                alert("Item deletion rejected")
-            })
-        builder
-            .addCase(getAllItem.fulfilled,(state,action)=>{
-                state.items = action.payload
-            })
-            .addCase(getAllItem.pending,(action,payload)=>{
-                console.log("Get ALL pending")
-            })
-            .addCase(getAllItem.rejected,(state,action)=>{
-                alert("Error while loading ....")
-            })
-        builder
-            .addCase(updateItem.fulfilled,(state,action)=>{
-                state.items.push(action.payload)
-            })
-            .addCase(updateItem.pending,(state,action)=>{
-                console.log("Item update pending")
-            })
-            .addCase(updateItem.rejected,(state,action)=>{
-                alert("Item Update rejected")
-            })
-    }
-})
-// export const {addItem, deleteItem, updateItem} = ItemSlice.actions;
+      // deleteItem
+      .addCase(deleteItem.fulfilled, (state, action) => {
+        state.items = state.items.filter((item) => item.itemCode !== action.payload);
+        alert("Item deleted successfully!");
+      })
+      .addCase(deleteItem.rejected, (_, action) => {
+        alert(action.payload || "Delete failed");
+      })
+
+      // getAllItem
+      .addCase(getAllItem.fulfilled, (state, action) => {
+        state.items = action.payload;
+      })
+      .addCase(getAllItem.rejected, (_, action) => {
+        alert(action.payload || "Failed to load items");
+      })
+
+      // updateItem
+      .addCase(updateItem.fulfilled, (state, action) => {
+        const updatedItem = action.payload;
+        state.items = state.items.map((item) =>
+          item.itemCode === updatedItem.itemCode ? updatedItem : item
+        );
+      })
+      .addCase(updateItem.rejected, (_, action) => {
+        alert(action.payload || "Update failed");
+      });
+  },
+});
+
 export default ItemSlice.reducer;
