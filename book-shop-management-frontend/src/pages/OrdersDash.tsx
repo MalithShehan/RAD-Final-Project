@@ -5,6 +5,7 @@ import { Order } from "../models/Order.ts";
 import { Appdispatch } from "../store/store.tsx";
 import { deleteOrder, getAllOrders } from "../reducer/OrderSlice.ts";
 import { FaTrash } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export function OrdersDash() {
   const orders = useSelector(state => state.orders.orders) || [];
@@ -22,8 +23,14 @@ export function OrdersDash() {
   const handleDelete = async (orderId: string) => {
     const isConfirmed = window.confirm(`Do you want to delete this order? ${orderId}`);
     if (isConfirmed) {
-      await dispatch(deleteOrder(orderId));
-      dispatch(getAllOrders());
+      try {
+        await dispatch(deleteOrder(orderId));
+        toast.success(`✅ Order ${orderId} deleted successfully.`);
+        dispatch(getAllOrders());
+      } catch (error) {
+        console.error("Failed to delete order:", error);
+        toast.error(`❌ Failed to delete order ${orderId}. Please try again.`);
+      }
     }
   };
 

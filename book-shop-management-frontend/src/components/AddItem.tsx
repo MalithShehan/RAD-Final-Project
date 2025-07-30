@@ -3,6 +3,8 @@ import { useDispatch } from "react-redux";
 import { v4 } from "uuid";
 import { Appdispatch } from "../store/store.tsx";
 import { getAllItem, saveItem } from "../reducer/ItemSlice.ts";
+import { toast } from "react-toastify";
+
 
 interface AddItemModalProps {
     isOpen: boolean;
@@ -20,6 +22,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose }) => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
         const itemCode = `IID-${v4()}`;
         const item = {
             itemCode,
@@ -28,10 +31,23 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose }) => {
             qto: Number(quantity),
             price: Number(price),
         };
-        await dispatch(saveItem(item));
-        onClose();
-        await dispatch(getAllItem());
+
+        try {
+            const result = await dispatch(saveItem(item));
+
+            if (saveItem.rejected.match(result)) {
+                toast.error("❌ Failed to add item. Please try again.");
+            } else {
+                toast.success("✅ Item added successfully!");
+                onClose(); // close the modal only on success
+                await dispatch(getAllItem());
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Something went wrong!");
+        }
     };
+
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black bg-opacity-50">
@@ -72,7 +88,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose }) => {
                         </button>
                         <button type="submit" className="bg-blue-500 text-white p-2 rounded">
                             Add Item
-                            
+
                         </button>
                     </div>
                 </form>

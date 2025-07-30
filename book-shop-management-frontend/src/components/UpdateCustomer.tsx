@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { Customer } from "../models/Customer.ts";
 import { Appdispatch } from "../store/store.tsx";
 import { deleteCustomer, getAllCustomer, updateCustomer } from "../reducer/CustomerSlice.ts";
+import { toast } from "react-toastify";
 
 interface UpdateCustomerModalProps {
     isOpen: boolean;
@@ -32,24 +33,63 @@ const UpdateCustomerModal: React.FC<UpdateCustomerModalProps> = ({ isOpen, onClo
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        // Phone number validation: allows 10 digits starting with 0 or international format
+        const phoneRegex = /^(\+94|0)?\d{9}$/;
+
+        if (!phoneRegex.test(phone)) {
+            toast.error("📞 Invalid phone number. Please enter a valid 10-digit number.");
+            return;
+        }
+
         const customer = {
             id,
             name,
             address,
             phone,
+        };
+
+        try {
+            const result = await dispatch(updateCustomer(customer));
+
+            if (updateCustomer.rejected.match(result)) {
+                toast.error("❌ Failed to update customer. Please try again.");
+            } else {
+                toast.success("✅ Customer updated successfully!");
+                onClose();
+                await dispatch(getAllCustomer());
+            }
+        } catch (error) {
+            console.error("Update customer error:", error);
+            toast.error("Something went wrong while updating the customer.");
         }
-        await dispatch(updateCustomer(customer));
-        onClose();
-        await dispatch(getAllCustomer())
     };
 
     const handleDelete = async () => {
-        if (selectedCustomer) {
-            await dispatch(deleteCustomer(selectedCustomer.id));
+        if (!selectedCustomer) return;
+
+        const confirmDelete = window.confirm(
+            `Are you sure you want to delete customer "${selectedCustomer.name}"?`
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+            const result = await dispatch(deleteCustomer(selectedCustomer.id));
+
+            if (deleteCustomer.rejected.match(result)) {
+                toast.error("❌ Failed to delete customer. Please try again.");
+            } else {
+                toast.success("🗑️ Customer deleted successfully!");
+                onClose();
+                await dispatch(getAllCustomer());
+            }
+        } catch (error) {
+            console.error("Delete error:", error);
+            toast.error("Something went wrong while deleting the customer.");
         }
-        onClose();
-        await dispatch(getAllCustomer())
-    }
+    };
+
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm">
@@ -107,4 +147,3 @@ const UpdateCustomerModal: React.FC<UpdateCustomerModalProps> = ({ isOpen, onClo
 };
 
 export default UpdateCustomerModal;
-    

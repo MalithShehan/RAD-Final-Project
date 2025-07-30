@@ -12,12 +12,13 @@ import { useNavigate } from "react-router";
 import { Appdispatch } from "../store/store.tsx";
 import { addOrder } from "../reducer/OrderSlice.ts";
 import { clearCart } from "../reducer/OrderDetailSlice.ts";
+import { toast } from "react-toastify";
 
 export function OrderDetailsDash() {
   const items: Item[] = useSelector(state => state.item.items) || [];
   const cartItems: CartItem[] = useSelector(state => state.cart.cartItems) || [];
   const customerList: Customer[] = useSelector(state => state.customer.customers) || [];
-  
+
   const dispatch = useDispatch<Appdispatch>();
   const navigate = useNavigate();
 
@@ -51,7 +52,7 @@ export function OrderDetailsDash() {
 
   const handleBuy = async () => {
     if (!orderDate || !cash || !customerName) {
-      alert("Please fill out all the necessary details");
+      toast.error("⚠️ Please fill out all the necessary details");
       return;
     }
 
@@ -66,9 +67,16 @@ export function OrderDetailsDash() {
       cartItems,
     };
 
-    await dispatch(addOrder(newOrder));
-    navigate('/home/orders');
+    try {
+      await dispatch(addOrder(newOrder));
+      toast.success("✅ Order placed successfully!");
+      navigate('/home/orders');
+    } catch (error) {
+      console.error("Failed to place order:", error);
+      toast.error("❌ Failed to complete the order. Please try again.");
+    }
   };
+
 
   function handleFinish() {
     let cartTotal = 0;
@@ -79,6 +87,9 @@ export function OrderDetailsDash() {
 
     setTotal(cartTotal);
     dispatch(clearCart());
+
+    // Show success toast
+    toast.success("✅ Order finished and cart cleared!");
   }
 
   function handleSearch() {

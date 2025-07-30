@@ -10,7 +10,7 @@ const SearchBar = (props) => {
                         <input
                             className="form-control border rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                             type="search"
-                            placeholder="Search customer"
+                            placeholder="Search"
                             aria-label="Search"
                             id="searchBar"
                             onChange={(e) => props.setSearchTerm(e.target.value)}

@@ -1,14 +1,15 @@
-import {useDispatch} from "react-redux";
-import React, {useEffect, useState} from "react";
-import {CartItem} from "../models/CartItem.ts";
-import {deleteFromCart, updateCart} from "../reducer/OrderDetailSlice.ts";
+import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { CartItem } from "../models/CartItem.ts";
+import { deleteFromCart, updateCart } from "../reducer/OrderDetailSlice.ts";
+import { toast } from "react-toastify";
 
 interface UpdateCartItemModalProps {
     isOpen: boolean;
     onClose: () => void;
-    clickedItem:CartItem|null;
+    clickedItem: CartItem | null;
 }
-const UpdateCart :(React.FC<UpdateCartItemModalProps>) =({isOpen, onClose, clickedItem})=> {
+const UpdateCart: (React.FC<UpdateCartItemModalProps>) = ({ isOpen, onClose, clickedItem }) => {
 
     const dispatch = useDispatch();
 
@@ -19,14 +20,14 @@ const UpdateCart :(React.FC<UpdateCartItemModalProps>) =({isOpen, onClose, click
     const [subTotal, setSubTotal] = useState<number>(0);
 
     useEffect(() => {
-        if(clickedItem) {
+        if (clickedItem) {
             setItemCode(clickedItem.itemCode);
             setDesc(clickedItem.desc);
             setUnitPrice(clickedItem.unitPrice);
             setQty(clickedItem.qty);
             setSubTotal(clickedItem.subTotal);
         };
-    },[clickedItem]);
+    }, [clickedItem]);
     const handleQuantityChange = (value: string) => {
         const qty = Number(value);
         setQty(qty);
@@ -34,17 +35,23 @@ const UpdateCart :(React.FC<UpdateCartItemModalProps>) =({isOpen, onClose, click
     };
 
     const handleAddToCart = () => {
+        if (!itemCode || !desc || unitPrice <= 0 || qty <= 0) {
+            toast.warning("⚠️ Please fill all fields correctly before adding to cart.");
+            return;
+        }
 
         const cartItem = {
             itemCode,
             desc,
             unitPrice,
             qty,
-            subTotal,
-        }
+            subTotal: unitPrice * qty,
+        };
 
         dispatch(updateCart(cartItem));
+        toast.success("🛒 Cart item updated!");
 
+        // Reset fields
         setItemCode('');
         setDesc('');
         setUnitPrice(0);
@@ -52,10 +59,17 @@ const UpdateCart :(React.FC<UpdateCartItemModalProps>) =({isOpen, onClose, click
         setSubTotal(0);
         onClose();
     };
-    const handleDelete =()=>{
+
+    const handleDelete = () => {
+        if (!clickedItem) {
+            toast.warning("⚠️ No item selected to delete.");
+            return;
+        }
+
         dispatch(deleteFromCart(clickedItem));
-        onClose()
-    }
+        toast.success("🗑️ Item removed from cart.");
+        onClose();
+    };
     if (!isOpen) return null;
 
     return (

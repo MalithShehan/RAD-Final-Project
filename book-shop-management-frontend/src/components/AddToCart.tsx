@@ -1,8 +1,9 @@
 // src/components/AddItemModal.tsx
 import React, { useState } from 'react';
-import {useDispatch, useSelector} from "react-redux";
-import {Item} from "../models/Item.ts";
-import {addToCart} from "../reducer/OrderDetailSlice.ts";
+import { useDispatch, useSelector } from "react-redux";
+import { Item } from "../models/Item.ts";
+import { addToCart } from "../reducer/OrderDetailSlice.ts";
+import { toast } from "react-toastify";
 
 interface AddItemModalProps {
     isOpen: boolean;
@@ -13,7 +14,7 @@ interface AddItemModalProps {
 const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, suggestions }) => {
 
     const dispatch = useDispatch();
-    const items = useSelector(state=>state.item.items);
+    const items = useSelector(state => state.item.items);
 
     const [itemCode, setItemCode] = useState('');
     const [desc, setDesc] = useState('');
@@ -32,28 +33,47 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, suggestion
     };
 
     const handleQuantityChange = (value: string) => {
-        const qty = Number(value);
-        setQty(qty);
-        setSubTotal(qty * unitPrice);
-    };
+    const qty = Number(value);
+    if (isNaN(qty) || qty < 0) {
+        // Ignore invalid inputs or negative quantities
+        setQty(0);
+        setSubTotal(0);
+        return;
+    }
+    setQty(qty);
+    setSubTotal(qty * unitPrice);
+};
 
     const handleAddToCart = () => {
+        if (!itemCode || qty <= 0) {
+            toast.warning("⚠️ Please select an item and valid quantity.");
+            return;
+        }
+
+        const item = items.find((i: Item) => i.itemCode === itemCode);
+
+        if (!item) {
+            toast.error("❌ Item not found.");
+            return;
+        }
+
+        if (item.qto < qty) {
+            toast.error(`❌ Insufficient stock for "${item.desc}". Available: ${item.qto}`);
+            return;
+        }
+
         const cartItem = {
             itemCode,
             desc,
             unitPrice,
             qty,
-            subTotal,
-        }
+            subTotal: unitPrice * qty,
+        };
 
-        items.forEach((item:Item) => {
-            if (item.itemCode === itemCode){
-                if (item.qto >= qty){
-                    dispatch(addToCart(cartItem));
-                }
-                else alert("Insufficient quantity for Item "+item.desc);
-            }
-        })
+        dispatch(addToCart(cartItem));
+        toast.success(`✅ "${item.desc}" added to cart!`);
+
+        // Reset form
         setItemCode('');
         setDesc('');
         setUnitPrice(0);
@@ -61,6 +81,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, suggestion
         setSubTotal(0);
         onClose();
     };
+
 
     if (!isOpen) return null;
 

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useDispatch } from "react-redux";
-// import {addCustomer} from "../reducer/CustomerSlice.ts";
 import { v4 } from "uuid";
 import { getAllCustomer, saveCustomer } from "../reducer/CustomerSlice.ts";
 import { Appdispatch } from "../store/store.tsx";
+import { toast } from "react-toastify";
+
 
 interface AddCustomerModalProps {
     isOpen: boolean;
@@ -20,6 +21,15 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({ isOpen, onClose }) 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        // Simple phone number validation (Sri Lankan format or international format)
+        const phoneRegex = /^(\+94|0)?\d{9}$/;
+
+        if (!phoneRegex.test(phone)) {
+            toast.error("📞 Invalid phone number. Please enter a valid 10-digit number.");
+            return;
+        }
+
         const id = `CID-${v4()}`;
         const customer = {
             id,
@@ -27,10 +37,24 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({ isOpen, onClose }) 
             address,
             phone,
         };
-        await dispatch(saveCustomer(customer));
-        onClose();
-        await dispatch(getAllCustomer());
+
+        try {
+            const result = await dispatch(saveCustomer(customer));
+
+            if (saveCustomer.rejected.match(result)) {
+                toast.error("❌ Failed to save customer. Please try again.");
+            } else {
+                toast.success("✅ Customer saved successfully!");
+                onClose();
+                await dispatch(getAllCustomer());
+            }
+        } catch (error) {
+            console.error("Save customer error:", error);
+            toast.error("Something went wrong!");
+        }
     };
+
+
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black bg-opacity-50">

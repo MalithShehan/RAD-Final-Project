@@ -53,7 +53,7 @@ export const loginUser = createAsyncThunk<
   "user/login",
   async (user, thunkAPI) => {
     try {
-      const response = await api.post("/auth/login", { user }, { withCredentials: true });
+      const response = await api.post("/auth/login", { user }, { withCredentials: false });
       return response.data;
     } catch (error: any) {
       const message =
@@ -112,7 +112,7 @@ const userSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state) => {
         state.loading = false;
-        state.error = "Password or Username is wrong, try again";
+        state.error = "Username or Password  is wrong, try again...!";
         state.isAuthenticated = false;
       });
   },

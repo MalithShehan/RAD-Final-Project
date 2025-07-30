@@ -8,6 +8,8 @@ import { OrdersDash } from "./pages/OrdersDash.tsx";
 import { OrderDetailsDash } from "./pages/OrderDetailsDash.tsx";
 import { Login } from "./pages/Login.tsx";
 import { useSelector } from "react-redux";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
 
@@ -38,6 +40,15 @@ function App() {
     return (
         <>
             <RouterProvider router={routes} />
+            <ToastContainer
+                position="top-center"
+                autoClose={3000}
+                pauseOnHover
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                draggable
+            />
         </>
     );
 }
