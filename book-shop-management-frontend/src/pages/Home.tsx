@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import { Appdispatch } from "../store/store.tsx";
 import { getAllCustomer } from "../reducer/CustomerSlice.ts";
 import { getAllItem } from "../reducer/ItemSlice.ts";
@@ -23,6 +24,7 @@ export function Home() {
     const user = useSelector((state: any) => state.user.currentUser);
 
     const dispatch = useDispatch<Appdispatch>();
+    const navigate = useNavigate();
 
     useEffect(() => {
         dispatch(getAllCustomer());
@@ -57,12 +59,15 @@ export function Home() {
                         Hello Malith!
                     </h2>
                     <p className="mb-6 text-lg font-semibold">
-                        {user?.username || "Guest"}
+                        {user?.username || ""}
                     </p>
                 </div>
                 <button
                     className="bg-red-500 hover:bg-red-600 transition-all text-white py-2 px-4 rounded flex items-center justify-center"
-                    onClick={() => dispatch(logOutUser())}
+                    onClick={() => {
+                        dispatch(logOutUser());
+                        navigate("/login");
+                    }}
                 >
                     <FaSignOutAlt className="mr-2" />
                     Logout
